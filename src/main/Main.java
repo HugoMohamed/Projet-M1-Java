@@ -1,10 +1,15 @@
 package main;
+import main.reader.CSVReader;
 
 public class Main {
-
+	private static CSVReader reader;
+	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+		
+		reader = new CSVReader("data/Foot.txt", '\t');
+		
+		reader.readCSV();
+		System.out.println(reader.getData());
 	}
 
 }
