@@ -6,10 +6,9 @@ public class Main {
 	
 	public static void main(String[] args) {
 		
-		reader = new CSVReader("data/Foot.txt", '\t');
+		reader = new CSVReader("data/climat.txt", "\t");
 		
 		reader.readCSV();
-		System.out.println(reader.getData());
 	}
 
 }
