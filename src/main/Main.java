@@ -1,4 +1,5 @@
 package main;
+import main.graph.TweetGraph;
 import main.reader.CSVReader;
 import main.tweet.Tweet;
 
@@ -30,7 +31,10 @@ public class Main {
 		tweets.add(t2);
 		tweets.add(t3);
 		
-		for(Tweet t : tweets)
+		TweetGraph tweetGraph = new TweetGraph("climat",tweets);
+		
+		tweetGraph.displayGraph();
+		/*for(Tweet t : tweets)
 		{
 			// Ajoute un noeud au graphe, avec l'id correspondant à l'id du tweet
 			graph.addNode(t.getId());
@@ -52,7 +56,7 @@ public class Main {
 					graph.addEdge(t.getId()+rt.getId(),rt.getId(), t.getId(), true);
 			}
 		}
-		graph.display();
+		graph.display();*/
 	}
 
 }
