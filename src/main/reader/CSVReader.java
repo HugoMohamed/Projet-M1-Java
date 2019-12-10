@@ -11,15 +11,13 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import main.tweet.Tweet;
+import main.tweet.TweetBase;
 
 
 /*
  * Reader for CSV file
  */
 public class CSVReader {
-	
-	private ArrayList<String> data;
-	private ArrayList<Tweet> tweetList;
 	private String filepath;
 	private String sep;
 	
@@ -29,21 +27,8 @@ public class CSVReader {
 	 * sep : character for separation
 	 */
 	public CSVReader(String filepath, String sep){
-		data = new ArrayList<String>();
-		tweetList = new ArrayList<Tweet>();
 		this.filepath = filepath;
 		this.sep = sep;
-	}
-	
-	/*
-	 * Getters
-	 */
-	public ArrayList<String> getData() {
-		return data;
-	}
-	
-	public ArrayList<Tweet> getTweetList() {
-		return tweetList;
 	}
 
 	/*
@@ -54,7 +39,6 @@ public class CSVReader {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		BufferedReader csvReader = null;
 		String line = "";
-		int i = 0;
 		
 		try {
 			csvReader = new BufferedReader(new FileReader(filepath));
@@ -67,9 +51,8 @@ public class CSVReader {
 					t = new Tweet(tweetInfo[0], tweetInfo[1], date, tweetInfo[3], tweetInfo[4]);
 				else
 					t = new Tweet(tweetInfo[0], tweetInfo[1], date, tweetInfo[3], "null");
-				System.out.println(i + "	" + t.toString());
-				//tweetList.add(t);
-				i++;
+				
+				TweetBase.getInstance().getTweets().add(t);
 			}
 			csvReader.close();
 			
