@@ -5,16 +5,24 @@ import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.SingleGraph;
 
 import main.tweet.Tweet;
+import main.tweet.TweetBase;
+import main.tweet.User;
 
 public class TweetGraph {
 	
 	private Graph graph;
 	private ArrayList<Tweet> tweets;
-	
-	public TweetGraph(String name,ArrayList<Tweet> tweets)
+	private ArrayList<User> users;
+	private ArrayList<User> filtredUsers;
+	public TweetGraph(String name)
 	{
 		graph = new SingleGraph(name);
-		this.tweets = tweets;
+		tweets = TweetBase.getInstance().getTweets();
+		users = TweetBase.getInstance().getUsers();
+		graph.addAttribute("ui.stylesheet", "node {"
+				+ "size: 7px;"
+				+ "fill-color: #777;"
+				+ "text-mode: hidden;}");
 		setNodes();
 		setEdges();
 	}
@@ -24,8 +32,23 @@ public class TweetGraph {
 		return graph;
 	}
 	
+	public void filterUsers(int nb)
+	{
+		filtredUsers = new ArrayList<User>();
+		for(User u : users)
+		{
+			if(u.getTweets().size() >= nb)
+			{
+				filtredUsers.add(u);
+			}
+		}
+	}
+	
 	public void displayGraph()
 	{
+		for(Node n : graph)
+			if(n.getDegree() < 1)
+				n.addAttribute("ui.hide");
 		graph.display();
 	}
 	
@@ -36,33 +59,31 @@ public class TweetGraph {
 	
 	public void setNodes()
 	{
-		for(Tweet t : tweets)
+		System.out.println("Set Nodes");
+		filterUsers(1);
+		for(User u : filtredUsers)
 		{
 			// Ajoute un noeud au graphe, avec l'id correspondant à l'id du tweet
-			graph.addNode(t.getId());
+			graph.addNode(u.getName());
 			// Récupère un noeud grâce à son id
-			Node n = graph.getNode(t.getId());
+			Node n = graph.getNode(u.getName());
 			// Ajoute un attribut "tweet" contenant le tweet
-			n.setAttribute("tweet", t);
+			n.setAttribute("tweets", u.getTweets());
 			// Set le nom du noeud affiché dans le graphe
-			n.addAttribute("ui.label", t.getUser());
+			n.addAttribute("ui.label", u.getName());
 		}
 	}
 	
 	public void setEdges() 
 	{
-		// Parcours les noeuds du graphe
-		for(Node n : graph)
+		System.out.println("Set Edges");
+		int i = 0;
+		for(Tweet t : tweets)
 		{
-			// Récupère le tweet du noeud
-			Tweet t = n.getAttribute("tweet");
-			for(Node m : graph)
-			{
-				Tweet rt = m.getAttribute("tweet");
-				// Si t a retweeté rt, on crée un arc de t vers rt
-				if(rt.getUser() == t.getRetweet())
-					graph.addEdge(t.getId()+rt.getId(),t.getId(), rt.getId(), true);
-			}
+			Node n = graph.getNode(t.getUser());
+			Node m = graph.getNode(t.getRetweet());
+			if(n != null && m != null && !n.hasEdgeBetween(m.getId()) && !n.getId().equals(m.getId()))
+				graph.addEdge(n.getId()+m.getId()+Integer.toString(++i), n.getId(), m.getId()).addAttribute("layout.weight", 5);;
 		}
 	}
 }

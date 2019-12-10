@@ -12,6 +12,7 @@ import java.util.Date;
 
 import main.tweet.Tweet;
 import main.tweet.TweetBase;
+import main.tweet.User;
 
 
 /*
@@ -40,6 +41,8 @@ public class CSVReader {
 		BufferedReader csvReader = null;
 		String line = "";
 		
+		ArrayList<String> users = new ArrayList<String>();
+		
 		try {
 			csvReader = new BufferedReader(new FileReader(filepath));
 			while((line = csvReader.readLine()) != null) {
@@ -53,6 +56,15 @@ public class CSVReader {
 					t = new Tweet(tweetInfo[0], tweetInfo[1], date, tweetInfo[3], "null");
 				
 				TweetBase.getInstance().getTweets().add(t);
+				
+				if(!users.contains(tweetInfo[1]))
+				{
+					users.add(tweetInfo[1]);
+					TweetBase.getInstance().getUsers().add(new User(tweetInfo[1]));
+				}
+				if(!t.getRetweet().equals("null"))
+					TweetBase.setRetweetFromUser(tweetInfo[4], t);
+				
 			}
 			csvReader.close();
 			
