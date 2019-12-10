@@ -1,7 +1,5 @@
 package main.tweet;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Tweet {
@@ -11,8 +9,6 @@ public class Tweet {
 	private Date date;
 	private String content;
 	private String retweet;
-	
-	private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	public Tweet(String id, String user, Date date, String content, String retweet) {
 		this.id = id;
@@ -36,6 +32,10 @@ public class Tweet {
 	
 	public Date getDate() {
 		return date;
+	}
+	
+	public String getRetweet() {
+		return retweet;
 	}
 	
 	@Override
