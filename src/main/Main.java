@@ -1,9 +1,11 @@
 package main;
-import main.graph.TweetGraph;
+import javafx.application.Application;
+import javafx.stage.Stage;
 import main.reader.CSVReader;
+import main.scene.Interface;
 
 
-public class Main {
+public class Main extends Application{
 	private static CSVReader reader;
 	
 	public static void main(String[] args) {
@@ -12,12 +14,12 @@ public class Main {
 		
 		reader.readCSV();
 		
-		
-		TweetGraph tweetGraph = new TweetGraph("climat");
-		
-		tweetGraph.displayGraph();
-		
-		
+		Application.launch(Main.class,args);
+	}
+
+	@Override
+	public void start(Stage stage) throws Exception {
+		Interface.launchInterface(stage);
 	}
 
 }
