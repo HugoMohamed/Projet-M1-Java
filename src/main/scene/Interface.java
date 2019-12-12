@@ -15,9 +15,11 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import main.graph.TweetGraph;
 import main.tweet.Tweet;
@@ -49,25 +51,24 @@ public class Interface {
 	
 	@SuppressWarnings("unchecked")
 	public static Scene buildScene()
-	{
+	{		
+		TweetGraph tweetGraph = new TweetGraph("Graph");
+		
 		GridPane grid = new GridPane();
 
 		MenuBar menuBar = new MenuBar();
 		Menu actions = new Menu("Actions");
 		menuBar.getMenus().addAll(actions);
-		MenuItem itemQuitter = new MenuItem("Quitter");
-		actions.getItems().addAll(itemQuitter);
+		MenuItem itemQuit = new MenuItem("Quitter");
+		actions.getItems().addAll(itemQuit);
 
-		itemQuitter.setText("Quitter");
-		itemQuitter.setOnAction((ActionEvent t) ->
+		itemQuit.setText("Quitter");
+		itemQuit.setOnAction((ActionEvent t) ->
 		{
 			Platform.exit();
 		});
 	    
 		Separator separator = new Separator();
-
-		grid.add(menuBar,0,0);
-		grid.add(separator,0,2);
 		
 		TableView<Tweet> tableTweet = new TableView<Tweet>();
 		TableColumn<Tweet,String> cId = new TableColumn<Tweet,String>("Id");
@@ -83,28 +84,92 @@ public class Interface {
 		cRetweet.setCellValueFactory(new PropertyValueFactory<>("retweet"));
 		
 		tableTweet.getColumns().addAll(cId,cUser,cDate,cContent,cRetweet);
-		tableTweet.setItems(getTweets());
-				
-		BorderPane root = new BorderPane();
+		tableTweet.setItems(getTweets(false));
+		
+		Text textSearch = new Text();
+		textSearch.setText("Chercher dans les tweets : ");
+		TextField textFieldSearch = new TextField();
+		
+		Button search = new Button("Search");
+		search.setText("Rechercher");
+		search.setOnAction((ActionEvent e) ->
+		{
+			try
+			{
+				TweetBase.searchTweets(textFieldSearch.getText());
+				tableTweet.setItems(getTweets(true));
+				tweetGraph.setUsers(true);
+			}
+			catch(Exception ex)
+			{
+				tableTweet.setItems(getTweets(false));
+				tweetGraph.setUsers(false);
+			}
+		});
+		
+		grid.add(menuBar,0,0);
+		grid.add(textSearch, 0, 1);
+		grid.add(textFieldSearch, 1, 1);
+		grid.add(search, 2, 1);
+		grid.add(separator,0,2);
+		
+		GridPane graphGrid = new GridPane();
+		Text degre = new Text();
+		Text volume = new Text();
+		Text ordre = new Text();
+		Text diametre = new Text();
+		
+		degre.setText("Degre : ");
+		volume.setText("Volume : ");
+		ordre.setText("Ordre : ");
+		diametre.setText("Diametre : ");
+		
+		Text filter = new Text();
+		filter.setText("Degré minimal pour lequel les noeuds seront affichés : ");
+		TextField graphFilter = new TextField();
 		
 		Button graph = new Button("DisplayGraph");
 		graph.setText("Display graph");
 		graph.setOnAction((ActionEvent e) ->
 		{
-			TweetGraph tweetGraph = new TweetGraph("climat");
-			
-			tweetGraph.displayGraph();
+			try
+			{
+				tweetGraph.displayGraph(Integer.parseInt(graphFilter.getText()));
+			}
+			catch(Exception ex)
+			{
+				System.out.println("Erreur: l'argument entré n'est pas un entier");
+				tweetGraph.displayGraph(0);
+			}
+			degre.setText("Degre : "+Integer.toString(tweetGraph.getGraphStats().getDegre()));
+			volume.setText("Volume : "+Integer.toString(tweetGraph.getGraphStats().getVolume()));
+			ordre.setText("Ordre : "+Integer.toString(tweetGraph.getGraphStats().getOrdre()));
+			diametre.setText("Diametre : "+Integer.toString(tweetGraph.getGraphStats().getDiametre()));
 		});
+		
+		graphGrid.add(degre,0,0);
+		graphGrid.add(volume,0,1);
+		graphGrid.add(ordre,1,0);
+		graphGrid.add(diametre,1,1);
+		graphGrid.add(filter,0,2);
+		graphGrid.add(graphFilter,1,2);
+		graphGrid.add(graph,0,3);
+		
+		BorderPane root = new BorderPane();
 		root.setTop(grid);
 		root.setCenter(tableTweet);
-		root.setBottom(graph);
+		root.setBottom(graphGrid);
 		Scene scene = new Scene(root,1000,700);
 		return scene;
 	}
 	
-	private static ObservableList<Tweet> getTweets()
+	private static ObservableList<Tweet> getTweets(Boolean filtred)
 	{
-		ObservableList<Tweet> list = FXCollections.observableArrayList(TweetBase.getInstance().getTweets());
+		ObservableList<Tweet> list;
+		if(filtred)
+			list = FXCollections.observableArrayList(TweetBase.getInstance().getFiltredTweets());
+		else
+			list = FXCollections.observableArrayList(TweetBase.getInstance().getTweets());
 		return list;
 	}
 }

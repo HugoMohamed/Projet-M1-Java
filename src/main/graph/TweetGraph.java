@@ -1,8 +1,12 @@
 package main.graph;
 import java.util.ArrayList;
 
-import org.graphstream.graph.*;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.view.View;
+import org.graphstream.ui.view.Viewer;
 
 import main.tweet.Tweet;
 import main.tweet.TweetBase;
@@ -11,20 +15,46 @@ import main.tweet.User;
 public class TweetGraph {
 	
 	private Graph graph;
-	private ArrayList<Tweet> tweets;
 	private ArrayList<User> users;
 	private ArrayList<User> filtredUsers;
-	public TweetGraph(String name)
+	private GraphStats graphStats;
+	private View view;
+	
+	private void newGraph(String name)
 	{
 		graph = new SingleGraph(name);
-		tweets = TweetBase.getInstance().getTweets();
-		users = TweetBase.getInstance().getUsers();
 		graph.addAttribute("ui.stylesheet", "node {"
 				+ "size: 7px;"
 				+ "fill-color: #777;"
 				+ "text-mode: hidden;}");
+	}
+	public TweetGraph(String name)
+	{
+		newGraph(name);
+		
+		users = TweetBase.getInstance().getUsers();
+
 		setNodes();
 		setEdges();
+	}
+	
+	public void setUsers(Boolean filtred)
+	{
+		newGraph("search");
+		
+		users = new ArrayList<User>();
+
+		if(filtred)
+			users = TweetBase.getInstance().getFiltredUsers();
+		else
+			users = TweetBase.getInstance().getUsers();
+		setNodes();
+		setEdges();
+	}
+	
+	public View getView()
+	{
+		return view;
 	}
 	
 	public Graph getGraph()
@@ -44,22 +74,30 @@ public class TweetGraph {
 		}
 	}
 	
-	public void displayGraph()
+	public void displayGraph(int nb)
 	{
+		
+		for(Node n : graph)
+			if(n.getDegree() < nb)
+			{
+				for(Edge e : n.getEachEdge())
+					graph.removeEdge(e);
+				graph.removeNode(n);
+			}
+		
 		for(Node n : graph)
 			if(n.getDegree() < 1)
-				n.addAttribute("ui.hide");
-		graph.display();
+				n.addAttribute( "ui.hide" );
+		
+		setStats();
+		
+		Viewer viewer = graph.display();
+		view = viewer.getDefaultView();
+		
 	}
-	
-	public void setTweets(ArrayList<Tweet> tweets)
-	{
-		this.tweets = tweets;
-	}
-	
+		
 	public void setNodes()
 	{
-		System.out.println("Set Nodes");
 		filterUsers(1);
 		for(User u : filtredUsers)
 		{
@@ -76,14 +114,36 @@ public class TweetGraph {
 	
 	public void setEdges() 
 	{
-		System.out.println("Set Edges");
 		int i = 0;
-		for(Tweet t : tweets)
+		for(User u : filtredUsers)
 		{
-			Node n = graph.getNode(t.getUser());
-			Node m = graph.getNode(t.getRetweet());
-			if(n != null && m != null && !n.hasEdgeBetween(m.getId()) && !n.getId().equals(m.getId()))
-				graph.addEdge(n.getId()+m.getId()+Integer.toString(++i), n.getId(), m.getId()).addAttribute("layout.weight", 5);;
+			for(Tweet t : u.getTweets())
+			{
+				Node n = graph.getNode(t.getUser());
+				Node m = graph.getNode(t.getRetweet());
+				
+				if(n == null)
+				{
+					graph.addNode(t.getUser());
+					n = graph.getNode(t.getUser());
+					n.addAttribute("ui.label", t.getUser());
+				}
+
+				if(n != null && m != null && !n.hasEdgeBetween(m) && !t.getUser().equals(t.getRetweet()))
+				{
+					graph.addEdge(t.getUser()+t.getRetweet()+Integer.toString(++i), t.getUser(), t.getRetweet()).addAttribute("layout.weight", 5);
+				}
+			}
 		}
+	}
+	
+	public GraphStats getGraphStats()
+	{
+		return graphStats;
+	}
+	
+	public void setStats()
+	{
+		graphStats = new GraphStats(graph);
 	}
 }

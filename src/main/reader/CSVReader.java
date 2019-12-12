@@ -62,6 +62,11 @@ public class CSVReader {
 					users.add(tweetInfo[1]);
 					TweetBase.getInstance().getUsers().add(new User(tweetInfo[1]));
 				}
+				if(!users.contains(t.getRetweet()) && !t.getRetweet().equals("null"))
+				{
+					users.add(t.getRetweet());
+					TweetBase.getInstance().getUsers().add(new User(t.getRetweet()));
+				}
 				if(!t.getRetweet().equals("null"))
 					TweetBase.setRetweetFromUser(tweetInfo[4], t);
 				
