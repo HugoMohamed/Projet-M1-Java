@@ -2,7 +2,6 @@ package main.graph;
 import java.util.ArrayList;
 
 import org.graphstream.algorithm.BetweennessCentrality;
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -17,7 +16,6 @@ public class TweetGraph {
 	
 	private Graph graph;
 	private ArrayList<User> users;
-	private ArrayList<User> filtredUsers;
 	private GraphStats graphStats;
 	private View view;
 	
@@ -31,18 +29,14 @@ public class TweetGraph {
 				+ "fill-color: green,yellow,orange,red,purple;"
 				+ "size: 8px;}");
 	}
-	public TweetGraph(String name)
-	{
-		newGraph(name);
-		
+	public TweetGraph()
+	{	
+		users = new ArrayList<User>();
 		users = TweetBase.getInstance().getUsers();
 	}
 	
 	public void setUsers(Boolean filtred)
-	{
-		String name = graph.getId();
-		newGraph(name);
-		
+	{		
 		users = new ArrayList<User>();
 
 		if(filtred)
@@ -61,43 +55,40 @@ public class TweetGraph {
 		return graph;
 	}
 	
-	public void filterUsers(int nb)
+	public void filterNodes(int nb)
 	{
-		filtredUsers = new ArrayList<User>();
-		for(User u : users)
+		int nbNodes = graph.getNodeCount();
+		int i= 0;
+		while(i < nbNodes)
 		{
-			if(u.getTweets().size() >= nb)
+			Node n = graph.getNode(i);
+			if(n.getDegree() < nb)
 			{
-				filtredUsers.add(u);
+				graph.removeNode(i);
+				nbNodes--;
 			}
+			else
+				i++;
 		}
 	}
 	
-	public void displayGraph(int nb)
+	public void computeGraph(int nb, String name)
 	{
+		newGraph(name);
 		setNodes();
 		setEdges();
-		for(Node n : graph)
-			if(n.getDegree() < nb)
-			{
-				for(Edge e : n.getEachEdge())
-					graph.removeEdge(e);
-				graph.removeNode(n);
-			}
-		
-		for(Node n : graph)
-			if(n.getDegree() < 1)
-				n.addAttribute( "ui.hide" );
-		
+		filterNodes(nb);
 		setStats();
 		setCentrality();
 		setColorSize();
-
+	}
+	
+	public void displayGraph()
+	{
 		Viewer viewer = graph.display();
 		view = viewer.getDefaultView();
-		
-		
 	}
+	
 	private void setColorSize() 
 	{
 		for(Node n : graph)
@@ -133,8 +124,7 @@ public class TweetGraph {
 	
 	public void setNodes()
 	{
-		filterUsers(1);
-		for(User u : filtredUsers)
+		for(User u : users)
 		{
 			// Ajoute un noeud au graphe, avec l'id correspondant à l'id du tweet
 			graph.addNode(u.getName());
@@ -150,7 +140,7 @@ public class TweetGraph {
 	public void setEdges() 
 	{
 		int i = 0;
-		for(User u : filtredUsers)
+		for(User u : users)
 		{
 			for(Tweet t : u.getTweets())
 			{

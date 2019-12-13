@@ -24,6 +24,7 @@ import javafx.stage.Stage;
 import main.graph.TweetGraph;
 import main.tweet.Tweet;
 import main.tweet.TweetBase;
+import main.tweet.User;
 
 public class Interface {
 
@@ -52,7 +53,7 @@ public class Interface {
 	@SuppressWarnings("unchecked")
 	public static Scene buildScene()
 	{		
-		TweetGraph tweetGraph = new TweetGraph("Graph");
+		TweetGraph tweetGraph = new TweetGraph();
 		
 		GridPane grid = new GridPane();
 
@@ -86,6 +87,13 @@ public class Interface {
 		tableTweet.getColumns().addAll(cId,cUser,cDate,cContent,cRetweet);
 		tableTweet.setItems(getTweets(false));
 		
+		TableView<User> tableUser = new TableView<User>();
+		TableColumn<User,String> cName = new TableColumn<User,String>("Name");
+		cName.setCellValueFactory(new PropertyValueFactory<>("name"));
+		
+		tableUser.getColumns().addAll(cName);
+		tableUser.setItems(getUsers());
+		
 		Text textSearch = new Text();
 		textSearch.setText("Chercher dans les tweets : ");
 		TextField textFieldSearch = new TextField();
@@ -107,6 +115,7 @@ public class Interface {
 			}
 		});
 		
+		
 		grid.add(menuBar,0,0);
 		grid.add(textSearch, 0, 1);
 		grid.add(textFieldSearch, 1, 1);
@@ -124,26 +133,40 @@ public class Interface {
 		diametre.setText("Diametre : ");
 		
 		Text filter = new Text();
-		filter.setText("Degré minimal pour lequel les noeuds seront affichés : ");
+		filter.setText("Degré minimal (entier) pour lequel les noeuds seront affichés : ");
 		TextField graphFilter = new TextField();
 		
-		Button graph = new Button("DisplayGraph");
-		graph.setText("Display graph");
-		graph.setOnAction((ActionEvent e) ->
+		Button computeGraph = new Button("ComputeGraph");
+		computeGraph.setText("Calculer graphe");
+		computeGraph.setOnAction((ActionEvent e) ->
 		{
 			try
 			{
-				tweetGraph.displayGraph(Integer.parseInt(graphFilter.getText()));
+				tweetGraph.computeGraph(Integer.parseInt(graphFilter.getText()),"Filtred graph");
 			}
 			catch(Exception ex)
 			{
-				System.out.println("Degré minimal: l'argument entré n'est pas un entier");
-				tweetGraph.displayGraph(0);
+				tweetGraph.computeGraph(0,"Simple graph");
 			}
 			degre.setText("Degré moyen : "+Double.toString(tweetGraph.getGraphStats().getDegre()));
 			volume.setText("Volume : "+Integer.toString(tweetGraph.getGraphStats().getVolume()));
 			ordre.setText("Ordre : "+Integer.toString(tweetGraph.getGraphStats().getOrdre()));
 			diametre.setText("Diametre : "+Double.toString(tweetGraph.getGraphStats().getDiametre()));
+		});
+		
+		Button displayGraph = new Button("DisplayGraph");
+		displayGraph.setText("Display graphe");
+		displayGraph.setOnAction((ActionEvent e) ->
+		{
+			try
+			{
+				tweetGraph.displayGraph();
+			}
+			catch(Exception ex)
+			{
+				System.out.println("Créez un graphe avant de l'afficher");
+			}
+			
 		});
 		
 		graphGrid.add(degre,0,0);
@@ -153,7 +176,8 @@ public class Interface {
 		graphGrid.add(separator,0,2);
 		graphGrid.add(filter,0,3);
 		graphGrid.add(graphFilter,1,3);
-		graphGrid.add(graph,0,4);
+		graphGrid.add(computeGraph,0,4);
+		graphGrid.add(displayGraph,1,4);
 		
 		BorderPane root = new BorderPane();
 		root.setTop(grid);
@@ -170,6 +194,13 @@ public class Interface {
 			list = FXCollections.observableArrayList(TweetBase.getInstance().getFiltredTweets());
 		else
 			list = FXCollections.observableArrayList(TweetBase.getInstance().getTweets());
+		return list;
+	}
+	
+	private static ObservableList<User> getUsers()
+	{
+		ObservableList<User> list;
+		list = FXCollections.observableArrayList(TweetBase.getInstance().getUsers());
 		return list;
 	}
 }
