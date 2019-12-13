@@ -141,10 +141,10 @@ public class Interface {
 				System.out.println("Erreur: l'argument entré n'est pas un entier");
 				tweetGraph.displayGraph(0);
 			}
-			degre.setText("Degre : "+Integer.toString(tweetGraph.getGraphStats().getDegre()));
+			degre.setText("Degre moyen : "+Double.toString(tweetGraph.getGraphStats().getDegre()));
 			volume.setText("Volume : "+Integer.toString(tweetGraph.getGraphStats().getVolume()));
 			ordre.setText("Ordre : "+Integer.toString(tweetGraph.getGraphStats().getOrdre()));
-			diametre.setText("Diametre : "+Integer.toString(tweetGraph.getGraphStats().getDiametre()));
+			diametre.setText("Diametre : "+Double.toString(tweetGraph.getGraphStats().getDiametre()));
 		});
 		
 		graphGrid.add(degre,0,0);

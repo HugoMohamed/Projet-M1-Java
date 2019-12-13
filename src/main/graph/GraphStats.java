@@ -2,13 +2,14 @@ package main.graph;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+import org.graphstream.algorithm.Toolkit;
 
 public class GraphStats {
 
 	private int volume;
 	private int ordre;
-	private int diametre;
-	private int degre;
+	private double diametre;
+	private double degre;
 	
 	public GraphStats(Graph graph)
 	{
@@ -19,12 +20,10 @@ public class GraphStats {
 			volume += n.getDegree();
 			ordre++;
 		}
-		if(ordre != 0)
-			degre = volume / ordre;
 		this.volume = volume;
 		this.ordre = ordre;
-		
-		diametre = 0;
+		degre = Toolkit.averageDegree(graph);
+		diametre = Toolkit.diameter(graph);
 	}
 
 	public int getVolume() {
@@ -35,11 +34,13 @@ public class GraphStats {
 		return ordre;
 	}
 
-	public int getDiametre() {
+	public double getDiametre() {
 		return diametre;
 	}
 
-	public int getDegre() {
+	public double getDegre() {
+		int i = (int)(degre*100);
+		degre = i/100.;
 		return degre;
 	}
 

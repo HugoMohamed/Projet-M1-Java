@@ -1,6 +1,7 @@
 package main.graph;
 import java.util.ArrayList;
 
+import org.graphstream.algorithm.BetweennessCentrality;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -19,28 +20,28 @@ public class TweetGraph {
 	private ArrayList<User> filtredUsers;
 	private GraphStats graphStats;
 	private View view;
+	private double mediumCentrality;
 	
 	private void newGraph(String name)
 	{
 		graph = new SingleGraph(name);
-		graph.addAttribute("ui.stylesheet", "node {"
-				+ "size: 7px;"
-				+ "fill-color: #777;"
-				+ "text-mode: hidden;}");
+		graph.addAttribute("ui.stylesheet", "node {	"
+				+ "text-mode: hidden;"
+				+ "fill-mode: dyn-plain;" 
+				+ "fill-color: green, red;"
+				+ "size: 7px;}");
 	}
 	public TweetGraph(String name)
 	{
 		newGraph(name);
 		
 		users = TweetBase.getInstance().getUsers();
-
-		setNodes();
-		setEdges();
 	}
 	
 	public void setUsers(Boolean filtred)
 	{
-		newGraph("search");
+		String name = graph.getId();
+		newGraph(name);
 		
 		users = new ArrayList<User>();
 
@@ -48,8 +49,6 @@ public class TweetGraph {
 			users = TweetBase.getInstance().getFiltredUsers();
 		else
 			users = TweetBase.getInstance().getUsers();
-		setNodes();
-		setEdges();
 	}
 	
 	public View getView()
@@ -76,7 +75,8 @@ public class TweetGraph {
 	
 	public void displayGraph(int nb)
 	{
-		
+		setNodes();
+		setEdges();
 		for(Node n : graph)
 			if(n.getDegree() < nb)
 			{
@@ -90,12 +90,52 @@ public class TweetGraph {
 				n.addAttribute( "ui.hide" );
 		
 		setStats();
+		setCentrality();
 		
+		for(Node n : graph)
+		{
+			double cb = n.getAttribute("Cb");
+			if(cb > mediumCentrality*20)
+				n.setAttribute("ui.color", 1);
+			else
+				if(cb > mediumCentrality*10)
+					n.setAttribute("ui.color", 0.5);
+				else
+					n.setAttribute("ui.color", 0);
+		}
 		Viewer viewer = graph.display();
 		view = viewer.getDefaultView();
 		
-	}
 		
+	}
+	public void setCentrality()
+	{
+		double totalCent = 0;
+		int i = 0;
+		BetweennessCentrality bcb = new BetweennessCentrality();
+		bcb.setWeightAttributeName("weight");
+		bcb.init(graph);
+		bcb.compute();
+		
+		for(User u : users)
+		{
+			try
+			{
+				Node n = graph.getNode(u.getName());
+				double cb = n.getAttribute("Cb");
+				totalCent += cb;
+				i++;
+				u.setCentrality(cb);
+			}
+			catch(Exception e)
+			{
+			}
+			
+		}
+		if(i != 0)
+			mediumCentrality = totalCent/i;
+	}
+	
 	public void setNodes()
 	{
 		filterUsers(1);
