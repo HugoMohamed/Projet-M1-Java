@@ -111,7 +111,6 @@ public class Interface {
 		grid.add(textSearch, 0, 1);
 		grid.add(textFieldSearch, 1, 1);
 		grid.add(search, 2, 1);
-		grid.add(separator,0,2);
 		
 		GridPane graphGrid = new GridPane();
 		Text degre = new Text();
@@ -119,7 +118,7 @@ public class Interface {
 		Text ordre = new Text();
 		Text diametre = new Text();
 		
-		degre.setText("Degre : ");
+		degre.setText("Degré moyen : ");
 		volume.setText("Volume : ");
 		ordre.setText("Ordre : ");
 		diametre.setText("Diametre : ");
@@ -138,10 +137,10 @@ public class Interface {
 			}
 			catch(Exception ex)
 			{
-				System.out.println("Erreur: l'argument entré n'est pas un entier");
+				System.out.println("Degré minimal: l'argument entré n'est pas un entier");
 				tweetGraph.displayGraph(0);
 			}
-			degre.setText("Degre moyen : "+Double.toString(tweetGraph.getGraphStats().getDegre()));
+			degre.setText("Degré moyen : "+Double.toString(tweetGraph.getGraphStats().getDegre()));
 			volume.setText("Volume : "+Integer.toString(tweetGraph.getGraphStats().getVolume()));
 			ordre.setText("Ordre : "+Integer.toString(tweetGraph.getGraphStats().getOrdre()));
 			diametre.setText("Diametre : "+Double.toString(tweetGraph.getGraphStats().getDiametre()));
@@ -151,9 +150,10 @@ public class Interface {
 		graphGrid.add(volume,0,1);
 		graphGrid.add(ordre,1,0);
 		graphGrid.add(diametre,1,1);
-		graphGrid.add(filter,0,2);
-		graphGrid.add(graphFilter,1,2);
-		graphGrid.add(graph,0,3);
+		graphGrid.add(separator,0,2);
+		graphGrid.add(filter,0,3);
+		graphGrid.add(graphFilter,1,3);
+		graphGrid.add(graph,0,4);
 		
 		BorderPane root = new BorderPane();
 		root.setTop(grid);

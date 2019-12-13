@@ -20,16 +20,16 @@ public class TweetGraph {
 	private ArrayList<User> filtredUsers;
 	private GraphStats graphStats;
 	private View view;
-	private double mediumCentrality;
 	
 	private void newGraph(String name)
 	{
 		graph = new SingleGraph(name);
-		graph.addAttribute("ui.stylesheet", "node {	"
+		graph.addAttribute("ui.stylesheet", "node {"
+				+ "size-mode: dyn-size;	"
 				+ "text-mode: hidden;"
 				+ "fill-mode: dyn-plain;" 
-				+ "fill-color: green, red;"
-				+ "size: 7px;}");
+				+ "fill-color: green,yellow,orange,red,purple;"
+				+ "size: 8px;}");
 	}
 	public TweetGraph(String name)
 	{
@@ -91,49 +91,44 @@ public class TweetGraph {
 		
 		setStats();
 		setCentrality();
-		
-		for(Node n : graph)
-		{
-			double cb = n.getAttribute("Cb");
-			if(cb > mediumCentrality*20)
-				n.setAttribute("ui.color", 1);
-			else
-				if(cb > mediumCentrality*10)
-					n.setAttribute("ui.color", 0.5);
-				else
-					n.setAttribute("ui.color", 0);
-		}
+		setColorSize();
+
 		Viewer viewer = graph.display();
 		view = viewer.getDefaultView();
 		
 		
 	}
-	public void setCentrality()
+	private void setColorSize() 
 	{
-		double totalCent = 0;
-		int i = 0;
-		BetweennessCentrality bcb = new BetweennessCentrality();
-		bcb.setWeightAttributeName("weight");
-		bcb.init(graph);
-		bcb.compute();
-		
-		for(User u : users)
+		for(Node n : graph)
 		{
-			try
+			double cb = n.getAttribute("Cb");
+			int log = 0;
+			double color = 0;
+			if(cb >= 1)
 			{
-				Node n = graph.getNode(u.getName());
-				double cb = n.getAttribute("Cb");
-				totalCent += cb;
-				i++;
-				u.setCentrality(cb);
-			}
-			catch(Exception e)
-			{
+				log = (int) Math.log10(cb);
+				switch(log)
+				{
+				case 0: color = 0;break;
+				case 1: color = 0.25;break;
+				case 2: color = 0.5;break;
+				case 3: color = 0.75;break;
+				case 4: color = 1;break;
+				default: color = 1;break;
+				}
 			}
 			
+			n.setAttribute("ui.color",color);
+			n.setAttribute("ui.size", (8*log)+8);
 		}
-		if(i != 0)
-			mediumCentrality = totalCent/i;
+		
+	}
+	public void setCentrality()
+	{
+		BetweennessCentrality bcb = new BetweennessCentrality();
+		bcb.init(graph);
+		bcb.compute();
 	}
 	
 	public void setNodes()

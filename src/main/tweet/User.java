@@ -5,16 +5,7 @@ import java.util.ArrayList;
 public class User {
 	
 	private String name;
-	private double centrality;
 	
-	public double getCentrality() {
-		return centrality;
-	}
-
-	public void setCentrality(double centrality) {
-		this.centrality = centrality;
-	}
-
 	public String getName() {
 		return name;
 	}
