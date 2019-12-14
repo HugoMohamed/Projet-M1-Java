@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -135,18 +136,21 @@ public class Interface {
 		Text filter = new Text();
 		filter.setText("Degré minimal (entier) pour lequel les noeuds seront affichés : ");
 		TextField graphFilter = new TextField();
-		
+		CheckBox checkCentrality = new CheckBox("Calculer centralité");
 		Button computeGraph = new Button("ComputeGraph");
 		computeGraph.setText("Calculer graphe");
 		computeGraph.setOnAction((ActionEvent e) ->
 		{
+			boolean centrality = false;
+			if(checkCentrality.isSelected())
+				centrality = true;
 			try
 			{
-				tweetGraph.computeGraph(Integer.parseInt(graphFilter.getText()),"Filtred graph");
+				tweetGraph.computeGraph(Integer.parseInt(graphFilter.getText()),"Filtred graph",centrality);
 			}
 			catch(Exception ex)
 			{
-				tweetGraph.computeGraph(0,"Simple graph");
+				tweetGraph.computeGraph(0,"Simple graph",centrality);
 			}
 			degre.setText("Degré moyen : "+Double.toString(tweetGraph.getGraphStats().getDegre()));
 			volume.setText("Volume : "+Integer.toString(tweetGraph.getGraphStats().getVolume()));
@@ -154,13 +158,17 @@ public class Interface {
 			diametre.setText("Diametre : "+Double.toString(tweetGraph.getGraphStats().getDiametre()));
 		});
 		
+		CheckBox checkHide = new CheckBox("Cacher les noeuds de degré 0");
 		Button displayGraph = new Button("DisplayGraph");
 		displayGraph.setText("Display graphe");
 		displayGraph.setOnAction((ActionEvent e) ->
 		{
+			boolean hide = false;
+			if(checkHide.isSelected())
+				hide = true;
 			try
 			{
-				tweetGraph.displayGraph();
+				tweetGraph.displayGraph(hide);
 			}
 			catch(Exception ex)
 			{
@@ -177,7 +185,9 @@ public class Interface {
 		graphGrid.add(filter,0,3);
 		graphGrid.add(graphFilter,1,3);
 		graphGrid.add(computeGraph,0,4);
-		graphGrid.add(displayGraph,1,4);
+		graphGrid.add(checkCentrality,0,5);
+		graphGrid.add(displayGraph,2,4);
+		graphGrid.add(checkHide,2,5);
 		
 		BorderPane root = new BorderPane();
 		root.setTop(grid);

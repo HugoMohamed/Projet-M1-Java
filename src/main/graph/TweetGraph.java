@@ -5,8 +5,6 @@ import org.graphstream.algorithm.BetweennessCentrality;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.view.View;
-import org.graphstream.ui.view.Viewer;
 
 import main.tweet.Tweet;
 import main.tweet.TweetBase;
@@ -17,7 +15,6 @@ public class TweetGraph {
 	private Graph graph;
 	private ArrayList<User> users;
 	private GraphStats graphStats;
-	private View view;
 	
 	private void newGraph(String name)
 	{
@@ -45,11 +42,6 @@ public class TweetGraph {
 			users = TweetBase.getInstance().getUsers();
 	}
 	
-	public View getView()
-	{
-		return view;
-	}
-	
 	public Graph getGraph()
 	{
 		return graph;
@@ -72,21 +64,27 @@ public class TweetGraph {
 		}
 	}
 	
-	public void computeGraph(int nb, String name)
+	public void computeGraph(int nb, String name, boolean centrality)
 	{
 		newGraph(name);
 		setNodes();
 		setEdges();
 		filterNodes(nb);
 		setStats();
-		setCentrality();
-		setColorSize();
+		if(centrality) 
+		{
+			setCentrality();
+			setColorSize();
+		}
 	}
 	
-	public void displayGraph()
+	public void displayGraph(boolean hide)
 	{
-		Viewer viewer = graph.display();
-		view = viewer.getDefaultView();
+		if(hide)
+			for(Node n : graph)
+				if(n.getDegree() < 1)
+					n.addAttribute("ui.hide");
+		graph.display();
 	}
 	
 	private void setColorSize() 
