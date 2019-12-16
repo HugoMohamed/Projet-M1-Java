@@ -137,9 +137,12 @@ public class Interface {
 		filter.setText("Degré minimal (entier) pour lequel les noeuds seront affichés : ");
 		TextField graphFilter = new TextField();
 		CheckBox checkCentrality = new CheckBox("Calculer centralité");
-		Button computeGraph = new Button("ComputeGraph");
-		computeGraph.setText("Calculer graphe");
-		computeGraph.setOnAction((ActionEvent e) ->
+		
+		CheckBox checkHide = new CheckBox("Cacher les noeuds de degré 0");
+		CheckBox checkCommunity = new CheckBox("Regrouper par communautés");
+		Button displayGraph = new Button("DisplayGraph");
+		displayGraph.setText("Display graphe");
+		displayGraph.setOnAction((ActionEvent e) ->
 		{
 			boolean centrality = false;
 			if(checkCentrality.isSelected())
@@ -156,14 +159,7 @@ public class Interface {
 			volume.setText("Volume : "+Integer.toString(tweetGraph.getGraphStats().getVolume()));
 			ordre.setText("Ordre : "+Integer.toString(tweetGraph.getGraphStats().getOrdre()));
 			diametre.setText("Diametre : "+Double.toString(tweetGraph.getGraphStats().getDiametre()));
-		});
-		
-		CheckBox checkHide = new CheckBox("Cacher les noeuds de degré 0");
-		CheckBox checkCommunity = new CheckBox("Regrouper par communautés");
-		Button displayGraph = new Button("DisplayGraph");
-		displayGraph.setText("Display graphe");
-		displayGraph.setOnAction((ActionEvent e) ->
-		{
+			
 			boolean hide = false;
 			boolean showCommunity = checkCommunity.isSelected();
 			if(checkHide.isSelected())
@@ -187,9 +183,8 @@ public class Interface {
 		graphGrid.add(separator,0,2);
 		graphGrid.add(filter,0,3);
 		graphGrid.add(graphFilter,1,3);
-		graphGrid.add(computeGraph,0,4);
-		graphGrid.add(checkCentrality,0,5);
-		graphGrid.add(displayGraph,2,4);
+		graphGrid.add(checkCentrality,2,4);
+		graphGrid.add(displayGraph,0,4);
 		graphGrid.add(checkHide,2,5);
 		graphGrid.add(checkCommunity, 2, 3);
 		
