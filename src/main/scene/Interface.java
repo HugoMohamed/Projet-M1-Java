@@ -159,20 +159,23 @@ public class Interface {
 		});
 		
 		CheckBox checkHide = new CheckBox("Cacher les noeuds de degré 0");
+		CheckBox checkCommunity = new CheckBox("Regrouper par communautés");
 		Button displayGraph = new Button("DisplayGraph");
 		displayGraph.setText("Display graphe");
 		displayGraph.setOnAction((ActionEvent e) ->
 		{
 			boolean hide = false;
+			boolean showCommunity = checkCommunity.isSelected();
 			if(checkHide.isSelected())
 				hide = true;
 			try
 			{
-				tweetGraph.displayGraph(hide);
+				tweetGraph.displayGraph(hide, showCommunity);
 			}
 			catch(Exception ex)
 			{
 				System.out.println("Créez un graphe avant de l'afficher");
+				System.out.println(ex);
 			}
 			
 		});
@@ -188,6 +191,7 @@ public class Interface {
 		graphGrid.add(checkCentrality,0,5);
 		graphGrid.add(displayGraph,2,4);
 		graphGrid.add(checkHide,2,5);
+		graphGrid.add(checkCommunity, 2, 3);
 		
 		BorderPane root = new BorderPane();
 		root.setTop(grid);

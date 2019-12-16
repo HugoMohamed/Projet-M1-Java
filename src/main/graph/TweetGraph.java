@@ -2,9 +2,11 @@ package main.graph;
 import java.util.ArrayList;
 
 import org.graphstream.algorithm.BetweennessCentrality;
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.view.Viewer;
 
 import main.tweet.Tweet;
 import main.tweet.TweetBase;
@@ -15,6 +17,13 @@ public class TweetGraph {
 	private Graph graph;
 	private ArrayList<User> users;
 	private GraphStats graphStats;
+	private boolean centralityCalculated;
+	
+	public void setGraphStats(GraphStats graphStats) {
+		this.graphStats = graphStats;
+	}
+
+	private Viewer v;
 	
 	private void newGraph(String name)
 	{
@@ -25,6 +34,7 @@ public class TweetGraph {
 				+ "fill-mode: dyn-plain;" 
 				+ "fill-color: green,yellow,orange,red,purple;"
 				+ "size: 8px;}");
+		centralityCalculated = false;
 	}
 	public TweetGraph()
 	{	
@@ -78,13 +88,41 @@ public class TweetGraph {
 		}
 	}
 	
-	public void displayGraph(boolean hide)
+	public void displayGraph(boolean hide, boolean showCommunity)
 	{
-		if(hide)
+		// show only nodes with a certain centrality, hide the others
+		if(showCommunity) {
+			if(!centralityCalculated)
+			{	
+				System.out.println("Calculez la centralité");
+			}
+			for(Node n : graph) {
+					double centrality = n.getAttribute("Cb");
+				if(centrality <= 100.0) {
+					n.addAttribute("ui.hide");
+					for(Edge e : n.getEachEdge()) {
+						e.addAttribute("ui.hide");
+					}
+				}
+				else {
+					int currentSize = n.getAttribute("ui.size");
+					n.setAttribute("ui.size",  currentSize + n.getDegree());
+				}
+			}
+			graph.setAttribute("ui.stylesheet", "node {"
+					+ "size-mode: dyn-size;	"
+					+ "text-mode: normal;"
+					+ "fill-mode: dyn-plain;" 
+					+ "fill-color: green,yellow,orange,red,purple;"
+					+ "size: 8px;}");
+		}
+		else if(hide)
 			for(Node n : graph)
 				if(n.getDegree() < 1)
 					n.addAttribute("ui.hide");
-		graph.display();
+		
+		v = graph.display();
+		v.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
 	}
 	
 	private void setColorSize() 
@@ -118,6 +156,7 @@ public class TweetGraph {
 		BetweennessCentrality bcb = new BetweennessCentrality();
 		bcb.init(graph);
 		bcb.compute();
+		centralityCalculated = true;
 	}
 	
 	public void setNodes()
