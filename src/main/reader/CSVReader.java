@@ -44,12 +44,14 @@ public class CSVReader {
 		ArrayList<String> users = new ArrayList<String>();
 		
 		try {
+			// read the whole file
 			csvReader = new BufferedReader(new FileReader(filepath));
 			while((line = csvReader.readLine()) != null) {
 				String[] tweetInfo = line.split(sep);
 				Date date = null;
 				date = dateFormat.parse(tweetInfo[2]);
 				Tweet t;
+				// if not rt, put a "null" value
 				if(tweetInfo.length == 5)
 					t = new Tweet(tweetInfo[0], tweetInfo[1], date, tweetInfo[3], tweetInfo[4]);
 				else
@@ -57,6 +59,7 @@ public class CSVReader {
 				
 				TweetBase.getInstance().getTweets().add(t);
 				
+				// update User base
 				if(!users.contains(tweetInfo[1]))
 				{
 					users.add(tweetInfo[1]);

@@ -10,7 +10,7 @@ public class Main extends Application{
 	
 	public static void main(String[] args) {
 		
-		reader = new CSVReader("data/FootShort.txt", "\t");
+		reader = new CSVReader("data/climatShort.txt", "\t");
 		
 		reader.readCSV();
 		
@@ -21,5 +21,4 @@ public class Main extends Application{
 	public void start(Stage stage) throws Exception {
 		Interface.launchInterface(stage);
 	}
-
 }

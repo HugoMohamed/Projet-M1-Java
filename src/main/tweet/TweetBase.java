@@ -76,7 +76,7 @@ public class TweetBase {
 		{
 			if(u.getName().equals(name))
 			{
-				u.getTweets().add(t);
+				u.getRetweets().add(t);
 			}
 		}
 	}
@@ -87,7 +87,7 @@ public class TweetBase {
 		{
 			if(u.getName().equals(name))
 			{
-				u.getTweets().add(t);
+				u.getRetweets().add(t);
 			}
 		}
 	}
@@ -106,5 +106,4 @@ public class TweetBase {
 		
 		return tweetList;
 	}
-
 }

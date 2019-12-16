@@ -129,7 +129,7 @@ public class TweetGraph {
 			// Récupère un noeud grâce à son id
 			Node n = graph.getNode(u.getName());
 			// Ajoute un attribut "tweet" contenant le tweet
-			n.setAttribute("tweets", u.getTweets());
+			n.setAttribute("tweets", u.getRetweets());
 			// Set le nom du noeud affiché dans le graphe
 			n.addAttribute("ui.label", u.getName());
 		}
@@ -140,7 +140,7 @@ public class TweetGraph {
 		int i = 0;
 		for(User u : users)
 		{
-			for(Tweet t : u.getTweets())
+			for(Tweet t : u.getRetweets())
 			{
 				Node n = graph.getNode(t.getUser());
 				Node m = graph.getNode(t.getRetweet());
