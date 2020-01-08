@@ -25,8 +25,8 @@ import javafx.stage.Stage;
 import main.graph.TweetGraph;
 import main.tweet.Tweet;
 import main.tweet.TweetBase;
-import main.tweet.User;
 
+// Gère toute l'interface Javafx
 public class Interface {
 
 	private Interface intrface;
@@ -44,13 +44,14 @@ public class Interface {
 	
 	public static void launchInterface(Stage stage)
 	{
-		stage.setTitle("MesNews");
+		stage.setTitle("Graphe");
 		scene = buildScene();
 		stage.setScene(scene);
 		stage.sizeToScene();
 		stage.show();
 	}
 	
+	// Construit la scène de l'interface
 	@SuppressWarnings("unchecked")
 	public static Scene buildScene()
 	{		
@@ -64,6 +65,7 @@ public class Interface {
 		MenuItem itemQuit = new MenuItem("Quitter");
 		actions.getItems().addAll(itemQuit);
 
+		// Quitte l'interface
 		itemQuit.setText("Quitter");
 		itemQuit.setOnAction((ActionEvent t) ->
 		{
@@ -72,6 +74,7 @@ public class Interface {
 	    
 		Separator separator = new Separator();
 		
+		// On construit une table contenant tous les tweets
 		TableView<Tweet> tableTweet = new TableView<Tweet>();
 		TableColumn<Tweet,String> cId = new TableColumn<Tweet,String>("Id");
 		TableColumn<Tweet,String> cUser = new TableColumn<Tweet,String>("User");
@@ -88,17 +91,15 @@ public class Interface {
 		tableTweet.getColumns().addAll(cId,cUser,cDate,cContent,cRetweet);
 		tableTweet.setItems(getTweets(false));
 		
-		TableView<User> tableUser = new TableView<User>();
-		TableColumn<User,String> cName = new TableColumn<User,String>("Name");
-		cName.setCellValueFactory(new PropertyValueFactory<>("name"));
 		
-		tableUser.getColumns().addAll(cName);
-		tableUser.setItems(getUsers());
+		// Permet d'effectuer des recherches dans les tweets
+		// La recherche concerne les noms d'utilisateurs, le contenu des tweets et le nom du retweet
+		// Quand une recherche est effectuée, on filtre le graphe pour n'afficher que les resultats de la recherche
 		
 		Text textSearch = new Text();
 		textSearch.setText("Chercher dans les tweets : ");
 		TextField textFieldSearch = new TextField();
-		
+			
 		Button search = new Button("Search");
 		search.setText("Rechercher");
 		search.setOnAction((ActionEvent e) ->
@@ -133,13 +134,17 @@ public class Interface {
 		ordre.setText("Ordre : ");
 		diametre.setText("Diametre : ");
 		
+		// Permet de cacher les noeuds en dessous d'un certain degré, par défaut la valeur est à zéro (aucun noeud caché)
 		Text filter = new Text();
 		filter.setText("Degré minimal (entier) pour lequel les noeuds seront affichés : ");
 		TextField graphFilter = new TextField();
+		
 		CheckBox checkCentrality = new CheckBox("Calculer centralité");
 		
 		CheckBox checkHide = new CheckBox("Cacher les noeuds de degré 0");
+		
 		CheckBox checkCommunity = new CheckBox("Regrouper par communautés");
+		
 		Button displayGraph = new Button("DisplayGraph");
 		displayGraph.setText("Display graphe");
 		displayGraph.setOnAction((ActionEvent e) ->
@@ -147,6 +152,7 @@ public class Interface {
 			boolean centrality = false;
 			if(checkCentrality.isSelected())
 				centrality = true;
+			
 			try
 			{
 				tweetGraph.computeGraph(Integer.parseInt(graphFilter.getText()),"Filtred graph",centrality);
@@ -155,15 +161,18 @@ public class Interface {
 			{
 				tweetGraph.computeGraph(0,"Simple graph",centrality);
 			}
+			
 			degre.setText("Degré moyen : "+Double.toString(tweetGraph.getGraphStats().getDegre()));
 			volume.setText("Volume : "+Integer.toString(tweetGraph.getGraphStats().getVolume()));
 			ordre.setText("Ordre : "+Integer.toString(tweetGraph.getGraphStats().getOrdre()));
 			diametre.setText("Diametre : "+Double.toString(tweetGraph.getGraphStats().getDiametre()));
 			
-			boolean hide = false;
 			boolean showCommunity = checkCommunity.isSelected();
+			
+			boolean hide = false;
 			if(checkHide.isSelected())
 				hide = true;
+			
 			try
 			{
 				tweetGraph.displayGraph(hide, showCommunity);
@@ -171,7 +180,6 @@ public class Interface {
 			catch(Exception ex)
 			{
 				System.out.println("Créez un graphe avant de l'afficher");
-				System.out.println(ex);
 			}
 			
 		});
@@ -196,6 +204,7 @@ public class Interface {
 		return scene;
 	}
 	
+	// Renvoit la liste de tweets, soit filtrée soit entière
 	private static ObservableList<Tweet> getTweets(Boolean filtred)
 	{
 		ObservableList<Tweet> list;
@@ -206,10 +215,4 @@ public class Interface {
 		return list;
 	}
 	
-	private static ObservableList<User> getUsers()
-	{
-		ObservableList<User> list;
-		list = FXCollections.observableArrayList(TweetBase.getInstance().getUsers());
-		return list;
-	}
 }
