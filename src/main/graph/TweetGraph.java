@@ -12,22 +12,49 @@ import main.tweet.Tweet;
 import main.tweet.TweetBase;
 import main.tweet.User;
 
+/*
+ * Cette classe centralise toutes les opérations liées au graphe
+ * Elle calcule les noeuds et arêtes, gère l'affichage de ceux-ci, calcule la centralité et les communautées
+ */
 public class TweetGraph {
 	
 	private Graph graph;
 	private ArrayList<User> users;
 	private GraphStats graphStats;
 	private boolean centralityCalculated;
+	private Viewer v;
+	
+	// A l'instanciation, récupère la liste des utilisateurs, ceux-ci composeront les noeuds du graphe
+	public TweetGraph()
+	{	
+		users = new ArrayList<User>();
+		users = TweetBase.getInstance().getUsers();
+	}
+	
+	public Graph getGraph()
+	{
+		return graph;
+	}
 	
 	public void setGraphStats(GraphStats graphStats) {
 		this.graphStats = graphStats;
 	}
-
-	private Viewer v;
 	
+	public GraphStats getGraphStats()
+	{
+		return graphStats;
+	}
+	
+	
+	/* 
+	 * Crée un nouveau graphe (vide)
+	 * On ajoute au graphe une feuille de style, indiquant comment afficher les noeuds
+	 */
 	private void newGraph(String name)
 	{
 		graph = new SingleGraph(name);
+		// Accède à l'attribut "stylesheet" du graphe
+		// Les noeuds ont: une taille dynamique, un nom caché, une couleur dynamique (parmis vert,jaune,orange,rouge,violet) et une taille par défaut de 8px
 		graph.addAttribute("ui.stylesheet", "node {"
 				+ "size-mode: dyn-size;	"
 				+ "text-mode: hidden;"
@@ -36,12 +63,12 @@ public class TweetGraph {
 				+ "size: 8px;}");
 		centralityCalculated = false;
 	}
-	public TweetGraph()
-	{	
-		users = new ArrayList<User>();
-		users = TweetBase.getInstance().getUsers();
-	}
-	
+		
+	/*
+	 * Change la liste d'utilisateur
+	 * Si on a effectué une recherche (filtred == true), la liste d'utilisateur sera le resultat de la recherche
+	 * Sinon c'est la liste entière des utilisateurs
+	 */
 	public void setUsers(Boolean filtred)
 	{		
 		users = new ArrayList<User>();
@@ -50,13 +77,9 @@ public class TweetGraph {
 			users = TweetBase.getInstance().getFiltredUsers();
 		else
 			users = TweetBase.getInstance().getUsers();
-	}
+	}	
 	
-	public Graph getGraph()
-	{
-		return graph;
-	}
-	
+	// Filtre les noeuds du graphe pour supprimer ceux avec un degré inférieur à nb
 	public void filterNodes(int nb)
 	{
 		int nbNodes = graph.getNodeCount();
@@ -74,13 +97,20 @@ public class TweetGraph {
 		}
 	}
 	
+	// Centralise les opérations sur le graphe
 	public void computeGraph(int nb, String name, boolean centrality)
 	{
+		// Crée un nouveau graphe
 		newGraph(name);
+		// Définit ses noeuds (les utilisateurs)
 		setNodes();
+		// Définit ses arêtes (les retweets)
 		setEdges();
+		// Filtre le graphe
 		filterNodes(nb);
+		// Définit les statistiques du graphe
 		setStats();
+		// Si la case "Centralité" est cochée, calcul la centralité et adapte l'affichage
 		if(centrality) 
 		{
 			setCentrality();
@@ -88,6 +118,9 @@ public class TweetGraph {
 		}
 	}
 	
+	// Affiche le graphe
+	// Le booléen "hide" permet de cacher les noeuds sont liens (degré 0)
+	// Le booléen "showCommunity" permet de simplifier l'affichage en communautées
 	public void displayGraph(boolean hide, boolean showCommunity)
 	{
 		// show only nodes with a certain centrality, hide the others
@@ -96,35 +129,46 @@ public class TweetGraph {
 			{	
 				System.out.println("Calculez la centralité");
 			}
-			for(Node n : graph) {
+			else
+			{
+				// On récupère la valeur de centralité de chaque noeud
+				// Si elle est faible, on cache le noeud
+				// Sinon elle est élevée, on augmente la taille du noeud proportionnellement à son degré
+				for(Node n : graph) {
 					double centrality = n.getAttribute("Cb");
-				if(centrality <= 100.0) {
-					n.addAttribute("ui.hide");
-					for(Edge e : n.getEachEdge()) {
-						e.addAttribute("ui.hide");
+					if(centrality <= 100.0) {
+						n.addAttribute("ui.hide");
+						for(Edge e : n.getEachEdge()) {
+							e.addAttribute("ui.hide");
+						}
+					}
+					else {
+						int currentSize = n.getAttribute("ui.size");
+						n.setAttribute("ui.size",  currentSize + n.getDegree());
 					}
 				}
-				else {
-					int currentSize = n.getAttribute("ui.size");
-					n.setAttribute("ui.size",  currentSize + n.getDegree());
-				}
+				// Modifie la stylesheet: l'attribut "text-mode" est passé à normal (on affiche le nom)
+				graph.setAttribute("ui.stylesheet", "node {"
+						+ "size-mode: dyn-size;	"
+						+ "text-mode: normal;"
+						+ "fill-mode: dyn-plain;" 
+						+ "fill-color: green,yellow,orange,red,purple;"
+						+ "size: 8px;}");
 			}
-			graph.setAttribute("ui.stylesheet", "node {"
-					+ "size-mode: dyn-size;	"
-					+ "text-mode: normal;"
-					+ "fill-mode: dyn-plain;" 
-					+ "fill-color: green,yellow,orange,red,purple;"
-					+ "size: 8px;}");
 		}
-		else if(hide)
+		if(hide)
 			for(Node n : graph)
 				if(n.getDegree() < 1)
 					n.addAttribute("ui.hide");
 		
+		// Affiche le graph dans une nouvelle fenêtre
+		// Quitter la fenêtre du graphe ne ferme pas l'interface graphique
 		v = graph.display();
 		v.setCloseFramePolicy(Viewer.CloseFramePolicy.CLOSE_VIEWER);
+
 	}
 	
+	// Modifie la taille et la couleur des noeuds en fonction de leur centralité
 	private void setColorSize() 
 	{
 		for(Node n : graph)
@@ -151,6 +195,9 @@ public class TweetGraph {
 		}
 		
 	}
+	
+	// Le calcul de centralité est déjà compris dans la librairie externe
+	// La centralité de chaque noeud est contenu dans l'attribut "Cb"
 	public void setCentrality()
 	{
 		BetweennessCentrality bcb = new BetweennessCentrality();
@@ -159,21 +206,25 @@ public class TweetGraph {
 		centralityCalculated = true;
 	}
 	
+	// Définit les noeuds du graphe, chaque noeud correspond à un utilisateur unique
 	public void setNodes()
 	{
 		for(User u : users)
 		{
-			// Ajoute un noeud au graphe, avec l'id correspondant à l'id du tweet
+			// Ajoute un noeud au graphe, identifié par le pseudo
 			graph.addNode(u.getName());
 			// Récupère un noeud grâce à son id
 			Node n = graph.getNode(u.getName());
-			// Ajoute un attribut "tweet" contenant le tweet
+			// Ajoute un attribut "tweets" contenant les retweets
 			n.setAttribute("tweets", u.getRetweets());
-			// Set le nom du noeud affiché dans le graphe
+			// Dans l'interface graphique, on affichera le nom du noeud
 			n.addAttribute("ui.label", u.getName());
 		}
 	}
 	
+	// Définit les arêtes du graphe
+	// Un arête est tracée entre A et B si A a retweeté B
+	// Il ne peut y avoir qu'une arête entre A et B
 	public void setEdges() 
 	{
 		int i = 0;
@@ -199,13 +250,11 @@ public class TweetGraph {
 		}
 	}
 	
-	public GraphStats getGraphStats()
-	{
-		return graphStats;
-	}
-	
+	// Calcule les statistiques du graphe (degré moyen, volume, ordre, diametre)
+	// Les stats sont contenues dans un objet GraphStats
 	public void setStats()
 	{
 		graphStats = new GraphStats(graph);
 	}
+
 }
