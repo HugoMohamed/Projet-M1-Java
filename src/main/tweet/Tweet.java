@@ -2,6 +2,15 @@ package main.tweet;
 
 import java.util.Date;
 
+/*
+ * Class Tweet :
+ * Contient toutes les informations d'un tweet, a savoir :
+ * - id
+ * - nom d'utilisateur
+ * - date de publication du tweet
+ * - contenu du tweet
+ * - utilisateur retweeté dans le cas d'une réponse a un tweet
+ */
 public class Tweet {
 
 	private String id;
@@ -18,6 +27,9 @@ public class Tweet {
 		this.retweet = retweet;
 	}
 
+	/*
+	 * Getters & Setters
+	 */
 	public String getId() {
 		return id;
 	}

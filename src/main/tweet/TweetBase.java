@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/*
+ * Class Base de Tweet : 
+ * Singleton qui contient tout les tweets et tout les utilisateurs
+ */
 public class TweetBase {
 
 	private static TweetBase tweetBase = new TweetBase();
@@ -12,11 +16,15 @@ public class TweetBase {
 	private static ArrayList<User> users;
 	private static ArrayList<User> filtredUsers;
 
+	// Constructor
 	private TweetBase() {
 		tweets = new ArrayList<Tweet>();
 		users = new ArrayList<User>();
 	}
 	
+	/*
+	 * Getters & Setters
+	 */
 	public ArrayList<Tweet> getFiltredTweets() {
 		return filtredTweets;
 	}
@@ -38,6 +46,7 @@ public class TweetBase {
 		return tweetBase;
 	}
 	
+	// Recherche tout les Tweet correspondant a la recherche
 	public static ArrayList<Tweet> searchTweets(String search)
 	{
 		ArrayList<String> u = new ArrayList<String>();
@@ -70,6 +79,7 @@ public class TweetBase {
 		return filtredTweets;
 	}
 	
+	// ajoute le tweet t dans la base de retweet de tout les utilisateurs qui l'ont retweeté
 	public static void setRetweetFromUser(String name, Tweet t)
 	{
 		for(User u : users)
@@ -81,6 +91,7 @@ public class TweetBase {
 		}
 	}
 	
+	// Comme setRetweetFromUser mais avec la liste des utilisateurs filtré
 	public static void setRetweetFromFiltredUser(String name, Tweet t)
 	{
 		for(User u : filtredUsers)
@@ -92,6 +103,7 @@ public class TweetBase {
 		}
 	}
 	
+	// Renvoi tout les tweet d'un utilisateur passé en paramètre
 	public static ArrayList<Tweet> getTweetsFromUser(String user)
 	{
 		ArrayList<Tweet> tweetList = new ArrayList<Tweet>();

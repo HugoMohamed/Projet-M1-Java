@@ -16,16 +16,16 @@ import main.tweet.User;
 
 
 /*
- * Reader for CSV file
+ * Permet de lire un fichier CSV
  */
 public class CSVReader {
 	private String filepath;
 	private String sep;
 	
 	/*
-	 * Constructor
-	 * filepath : path for csv file
-	 * sep : character for separation
+	 * Constructeur
+	 * filepath : chemin du fichier csv
+	 * sep : caractère de séparation
 	 */
 	public CSVReader(String filepath, String sep){
 		this.filepath = filepath;
@@ -33,8 +33,7 @@ public class CSVReader {
 	}
 
 	/*
-	 * Read data from CSV file
-	 * filepath : path for CSV file
+	 * Lit les données depuis un fichier CSV et les ajoute a la base de tweet
 	 */
 	public void readCSV() {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -44,14 +43,15 @@ public class CSVReader {
 		ArrayList<String> users = new ArrayList<String>();
 		
 		try {
-			// read the whole file
+			// On lit tout le fichier
 			csvReader = new BufferedReader(new FileReader(filepath));
 			while((line = csvReader.readLine()) != null) {
+				// on split le tweet pour avoir toutes les infos
 				String[] tweetInfo = line.split(sep);
 				Date date = null;
 				date = dateFormat.parse(tweetInfo[2]);
 				Tweet t;
-				// if not rt, put a "null" value
+				// s'il n'y a pas de rt, on met une valeur "null"
 				if(tweetInfo.length == 5)
 					t = new Tweet(tweetInfo[0], tweetInfo[1], date, tweetInfo[3], tweetInfo[4]);
 				else
@@ -59,7 +59,7 @@ public class CSVReader {
 				
 				TweetBase.getInstance().getTweets().add(t);
 				
-				// update User base
+				// On met a jour la base d'utilisateur si l'utilisateur n'existe pas
 				if(!users.contains(tweetInfo[1]))
 				{
 					users.add(tweetInfo[1]);
